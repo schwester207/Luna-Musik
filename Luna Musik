@@ -1,0 +1,401 @@
+
+
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="theme-color" content="#17112d">
+
+<title>☾ Luna Music</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:linear-gradient(160deg,#211539,#100c20 65%);color:#faf5ff;font-family:system-ui,sans-serif;min-height:100vh}
+
+.app{max-width:700px;margin:auto;padding:22px 15px 45px}
+
+header{text-align:center;padding:15px 0 25px}
+
+.logo{font-size:45px;color:#d5baff}
+
+h1{margin:0;font-size:30px}
+
+.sub{color:#c4b4df;font-size:13px}
+
+.card{background:#251b3c;border:1px solid #ffffff18;border-radius:22px;padding:18px;margin:14px 0}
+
+h2{font-size:17px;margin:0 0 15px}
+
+input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px solid #ffffff25;background:#151024;color:white;margin:6px 0 12px;font:inherit}
+
+textarea{min-height:80px}
+
+button{border:0;border-radius:12px;padding:11px 14px;background:#c9a9ff;color:#24163a;font-weight:bold;font-size:14px}
+
+.secondary{background:#ffffff12;color:#f8f0ff;border:1px solid #ffffff20}
+
+.row{display:flex;gap:8px;align-items:center}
+
+.row button{flex-shrink:0}
+
+.cover{width:100%;max-width:240px;aspect-ratio:1;object-fit:cover;border-radius:20px;background:linear-gradient(135deg,#c9a9ff,#744ea6);display:block;margin:8px auto 16px}
+
+.center{text-align:center}
+
+#songList{display:grid;gap:8px}
+
+.song{display:flex;gap:10px;align-items:center;background:#ffffff08;padding:10px;border-radius:14px}
+
+.song img{width:48px;height:48px;object-fit:cover;border-radius:10px}
+
+.songInfo{flex:1;min-width:0;overflow-wrap:anywhere}
+
+.songInfo small{display:block;color:#c4b4df;margin-top:3px}
+
+.song button{padding:8px}
+
+.muted{color:#c4b4df;font-size:12px;line-height:1.6}
+
+#progress,#volume{accent-color:#c9a9ff;padding:0}
+
+.controls{display:flex;justify-content:center;align-items:center;gap:22px;margin:18px}
+
+#play{width:60px;height:60px;border-radius:50%;font-size:23px}
+
+#status{font-size:12px;color:#d5baff;min-height:18px}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+
+.tab.active{background:#c9a9ff;color:#24163a}
+
+footer{text-align:center;color:#9384ae;font-size:12px;padding:20px}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+
+ <div class="logo">☾ ✦</div>
+
+ <h1>Luna Music</h1>
+
+ <div class="sub">dein kleiner musikalischer Kosmos ♡</div>
+
+</header>
+
+<section class="card center">
+
+ <img class="cover" id="cover" alt="Albumcover">
+
+ <div class="muted">JETZT SPIELT</div>
+
+ <h2 id="nowTitle">Dein nächster Lieblingssong</h2>
+
+ <div class="sub" id="nowArtist">Wähle einen Song aus deiner Bibliothek</div>
+
+ <div class="controls">
+
+  <button class="secondary" id="prev">⏮</button>
+
+  <button id="play">▶</button>
+
+  <button class="secondary" id="next">⏭</button>
+
+ </div>
+
+ <div class="row"><span class="muted" id="elapsed">0:00</span><input id="progress" type="range" min="0" max="100" value="0"><span class="muted" id="total">0:00</span></div>
+
+ <div class="row"><span>🔈</span><input id="volume" type="range" min="0" max="1" step=".01" value=".8"><span>🔊</span></div>
+
+ <div id="status">Warte auf deinen Soundtrack ✨</div>
+
+ <audio id="audio" playsinline></audio>
+
+</section>
+
+<section class="card">
+
+ <h2>♡ Song hinzufügen</h2>
+
+ <label class="muted">Songtitel</label>
+
+ <input id="title" placeholder="Moonlight">
+
+ <label class="muted">Künstler:in</label>
+
+ <input id="artist" placeholder="Dein Lieblingsartist">
+
+ <label class="muted">Direkter MP3-/Audio-Link</label>
+
+ <input id="url" type="url" placeholder="https://example.com/song.mp3">
+
+ <label class="muted">Albumcover-Link (optional)</label>
+
+ <input id="image" type="url" placeholder="https://example.com/cover.jpg">
+
+ <label class="muted">Songtext oder eigene Notizen</label>
+
+ <textarea id="lyrics" placeholder="Deine Gedanken zu diesem Song ..."></textarea>
+
+ <button id="add" style="width:100%">＋ Song hinzufügen</button>
+
+ <p class="muted">Nutze direkte Audio-Links, die legal abgespielt werden dürfen. Normale Spotify- und YouTube-Links funktionieren hier nicht als direkte Audiodateien.</p>
+
+</section>
+
+<section class="card">
+
+ <h2>♫ Meine Musik</h2>
+
+ <div class="tabs">
+
+  <button class="tab active" data-filter="all">Alle Songs</button>
+
+  <button class="tab secondary" data-filter="fav">♡ Favoriten</button>
+
+ </div>
+
+ <div id="songList"></div>
+
+ <h2 style="margin-top:22px">✧ Meine Playlists</h2>
+
+ <div class="row">
+
+  <input id="playlistName" placeholder="Playlist-Name" style="margin:0">
+
+  <button id="makePlaylist">＋</button>
+
+ </div>
+
+ <div id="playlists" class="tabs"></div>
+
+</section>
+
+<section class="card">
+
+ <h2>✎ Songnotizen</h2>
+
+ <div class="muted" id="lyricsTitle">Wähle einen Song.</div>
+
+ <textarea id="lyricsEdit" placeholder="Eigene Songtexte oder Erinnerungen ..."></textarea>
+
+ <button id="saveLyrics" class="secondary">Notizen speichern</button>
+
+</section>
+
+<section class="card">
+
+ <h2>🌙 Sleep-Timer</h2>
+
+ <p class="muted">Die Musik stoppt nach der gewählten Zeit.</p>
+
+ <div class="row">
+
+  <select id="minutes">
+
+   <option value="5">5 Minuten</option>
+
+   <option value="10">10 Minuten</option>
+
+   <option value="15">15 Minuten</option>
+
+   <option value="30" selected>30 Minuten</option>
+
+   <option value="45">45 Minuten</option>
+
+   <option value="60">60 Minuten</option>
+
+   <option value="90">90 Minuten</option>
+
+  </select>
+
+  <button id="startTimer">Start</button>
+
+ </div>
+
+ <div id="timerStatus" class="muted">Kein Timer aktiv.</div>
+
+ <button class="secondary" id="cancelTimer">Timer abbrechen</button>
+
+</section>
+
+<section class="card">
+
+ <h2>☁ Meine Daten</h2>
+
+ <p class="muted">Songs und Favoriten werden in diesem Browser gespeichert. Exportiere eine Sicherung, wenn du deine Daten behalten möchtest.</p>
+
+ <div class="row">
+
+  <button id="export">Backup speichern</button>
+
+  <button class="secondary" id="import">Backup laden</button>
+
+  <input type="file" id="file" accept=".json,application/json" hidden>
+
+ </div>
+
+</section>
+
+<footer>mit Liebe unter dem Mond gemacht ☾</footer>
+
+</div>
+
+<script>
+
+(function(){
+
+const $=id=>document.getElementById(id);
+
+const KEY="luna-music-data";
+
+const audio=$("audio");
+
+const placeholder="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="25" fill="#8b68bd"/><text x="100" y="120" text-anchor="middle" font-size="85" fill="white">☾</text></svg>');
+
+let songs=[],playlists=[],current=null,filter="all",playlistFilter=null,timer=null;
+
+function safeURL(s){try{let u=new URL(s);return ["http:","https:"].includes(u.protocol)?u.href:""}catch(e){return ""}}
+
+function setCover(el,url){el.onerror=()=>{el.onerror=null;el.src=placeholder};el.src=safeURL(url||"")||placeholder}
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify({songs,playlists}))}catch(e){$("status").textContent="Speichern nicht möglich. Erstelle ein Backup."}}
+
+function load(){try{let d=JSON.parse(localStorage.getItem(KEY)||"{}");songs=Array.isArray(d.songs)?d.songs:[];playlists=Array.isArray(d.playlists)?d.playlists:[]}catch(e){}}
+
+function fmt(t){return Number.isFinite(t)&&t>=0?Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0"):"0:00"}
+
+function selected(){return songs.find(s=>s.id===current)}
+
+function visible(){
+
+ let list=songs;
+
+ if(filter==="fav")list=list.filter(s=>s.favorite);
+
+ if(playlistFilter){let p=playlists.find(p=>p.id===playlistFilter);list=p?list.filter(s=>p.ids.includes(s.id)):[]}
+
+ return list
+
+}
+
+function render(){
+
+ const list=$("songList");list.innerHTML="";
+
+ let shown=visible();
+
+ if(!shown.length){list.innerHTML='<div class="muted center">Noch keine Songs hier. Füge deinen ersten Song hinzu ✨</div>'}
+
+ shown.forEach(s=>{
+
+  let div=document.createElement("div");div.className="song";
+
+  let img=document.createElement("img");img.alt="";setCover(img,s.image);
+
+  let info=document.createElement("div");info.className="songInfo";
+
+  let name=document.createElement("strong");name.textContent=s.title;
+
+  let artist=document.createElement("small");artist.textContent=s.artist||"Unbekannte:r Künstler:in";
+
+  info.append(name,artist);
+
+  let play=document.createElement("button");play.textContent=current===s.id&&!audio.paused?"Ⅱ":"▶";play.className="secondary";play.onclick=()=>choose(s.id,true);
+
+  let fav=document.createElement("button");fav.textContent=s.favorite?"♥":"♡";fav.className="secondary";fav.onclick=()=>{s.favorite=!s.favorite;save();render()};
+
+  let del=document.createElement("button");del.textContent="×";del.className="secondary";del.onclick=()=>{if(confirm("Song entfernen?")){songs=songs.filter(x=>x.id!==s.id);playlists.forEach(p=>p.ids=p.ids.filter(id=>id!==s.id));if(current===s.id){audio.pause();audio.removeAttribute("src");current=null}save();render()}};
+
+  div.append(img,info,play,fav,del);list.append(div)
+
+ });
+
+ document.querySelectorAll("[data-filter]").forEach(b=>{b.classList.toggle("active",b.dataset.filter===filter);b.classList.toggle("secondary",b.dataset.filter!==filter)});
+
+ const pl=$("playlists");pl.innerHTML="";
+
+ playlists.forEach(p=>{let b=document.createElement("button");b.textContent="♫ "+p.name;b.className="tab"+(playlistFilter===p.id?" active":" secondary");b.onclick=()=>{playlistFilter=playlistFilter===p.id?null:p.id;render()};b.oncontextmenu=e=>{e.preventDefault();if(confirm("Playlist löschen?")){playlists=playlists.filter(x=>x.id!==p.id);playlistFilter=null;save();render()}};pl.append(b)});
+
+ update()
+
+}
+
+function update(){
+
+ let s=selected();$("nowTitle").textContent=s?s.title:"Dein nächster Lieblingssong";$("nowArtist").textContent=s?(s.artist||"Unbekannte:r Künstler:in"):"Wähle einen Song aus deiner Bibliothek";setCover($("cover"),s&&s.image);$("play").textContent=audio.paused?"▶":"Ⅱ";$("lyricsTitle").textContent=s?s.title:"Wähle einen Song.";if(document.activeElement!==$("lyricsEdit"))$("lyricsEdit").value=s?s.lyrics||"":""
+
+}
+
+function choose(id,autoplay){let s=songs.find(s=>s.id===id);if(!s)return;current=id;audio.src=s.url;audio.load();render();if(autoplay)audio.play().catch(()=>{$("status").textContent="Stream nicht verfügbar. Prüfe den direkten Audio-Link."});}
+
+$("add").onclick=()=>{
+
+ let title=$("title").value.trim(),url=safeURL($("url").value.trim());
+
+ if(!title)return alert("Bitte gib einen Songtitel ein.");
+
+ if(!url)return alert("Bitte füge einen gültigen direkten Audio-Link ein.");
+
+ let s={id:Date.now().toString()+Math.random().toString(36).slice(2),title,artist:$("artist").value.trim(),url,image:safeURL($("image").value.trim()),lyrics:$("lyrics").value.trim(),favorite:false};
+
+ songs.unshift(s);if(playlistFilter){let p=playlists.find(p=>p.id===playlistFilter);if(p)p.ids.push(s.id)}
+
+ ["title","artist","url","image","lyrics"].forEach(id=>$(id).value="");current=s.id;audio.src=s.url;audio.load();save();render();$("status").textContent="Song hinzugefügt. Drücke ▶ zum Abspielen."
+
+};
+
+$("play").onclick=()=>{if(!selected())return $("status").textContent="Füge zuerst einen Song hinzu.";if(audio.paused)audio.play().catch(()=>$("status").textContent="Audio konnte nicht gestartet werden.");else audio.pause()};
+
+$("prev").onclick=()=>move(-1);$("next").onclick=()=>move(1);
+
+function move(d){let list=visible();if(!list.length)return;let i=list.findIndex(s=>s.id===current);choose(list[(i+d+list.length)%list.length].id,true)}
+
+$("volume").oninput=()=>audio.volume=Number($("volume").value);audio.volume=.8;
+
+$("progress").oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*Number($("progress").value)/100};
+
+audio.addEventListener("timeupdate",()=>{if(Number.isFinite(audio.duration)){$("progress").value=audio.currentTime/audio.duration*100;$("elapsed").textContent=fmt(audio.currentTime);$("total").textContent=fmt(audio.duration)}});
+
+audio.addEventListener("play",()=>{update();render()});audio.addEventListener("pause",()=>{update();render()});audio.addEventListener("ended",()=>move(1));
+
+audio.addEventListener("error",()=>{$("status").textContent="Audio nicht verfügbar. Prüfe den Link oder wähle eine andere Quelle."});
+
+document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;playlistFilter=null;render()});
+
+$("makePlaylist").onclick=()=>{let name=$("playlistName").value.trim();if(!name)return alert("Gib deiner Playlist einen Namen.");let p={id:Date.now().toString(),name,ids:current?[current]:[]};playlists.push(p);$("playlistName").value="";playlistFilter=p.id;save();render()};
+
+$("saveLyrics").onclick=()=>{let s=selected();if(!s)return alert("Wähle zuerst einen Song.");s.lyrics=$("lyricsEdit").value;save();$("status").textContent="Notizen gespeichert."};
+
+$("startTimer").onclick=()=>{if(timer)clearInterval(timer);let end=Date.now()+Number($("minutes").value)*60000;function tick(){let left=end-Date.now();if(left<=0){audio.pause();clearInterval(timer);timer=null;$("timerStatus").textContent="Gute Nacht ☾";return}$("timerStatus").textContent="Noch "+fmt(Math.ceil(left/1000))}tick();timer=setInterval(tick,1000)};
+
+$("cancelTimer").onclick=()=>{if(timer)clearInterval(timer);timer=null;$("timerStatus").textContent="Timer abgebrochen."};
+
+$("export").onclick=()=>{let a=document.createElement("a"),u=URL.createObjectURL(new Blob([JSON.stringify({songs,playlists},null,2)],{type:"application/json"}));a.href=u;a.download="luna-music-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+
+$("import").onclick=()=>$("file").click();
+
+$("file").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.songs)||!Array.isArray(d.playlists))throw Error();if(!confirm("Deine bisherige Bibliothek ersetzen?"))return;songs=d.songs.filter(s=>s&&s.title&&safeURL(s.url));playlists=d.playlists.filter(p=>p&&p.name&&Array.isArray(p.ids));current=null;playlistFilter=null;audio.pause();save();render()}catch(err){alert("Ungültige Backup-Datei.")}e.target.value=""};
+
+load();render();
+
+})();
+
+</script>
+
+</body>
+
+</html>
